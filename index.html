@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0a3b74">
+  <meta name="description" content="Protótipo de levantamentos e checklists SST">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <title>Innovativa Inspeções SST</title>
+</head>
+<body>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <img src="assets/icon.svg" alt="">
+        <div><strong>Innovativa</strong><span>Inspeções SST</span></div>
+      </div>
+
+      <nav>
+        <button class="nav active" data-page="inicio">⌂ <span>Início</span></button>
+        <button class="nav" data-page="levantamentos">▤ <span>Levantamentos</span></button>
+        <button class="nav admin-only" data-page="modelos">▦ <span>Modelos</span></button>
+        <button class="nav" data-page="empresas">▣ <span>Empresas</span></button>
+        <button class="nav manager-only" data-page="agenda">◷ <span>Agenda</span></button>
+        <button class="nav admin-only" data-page="usuarios">◎ <span>Usuários</span></button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <button id="profileButton" class="profile">
+          <span class="avatar">DM</span>
+          <span><strong>Usuário Demo</strong><small id="roleLabel">Administrador</small></span>
+          <b>›</b>
+        </button>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <button class="mobile-menu" id="menuButton">☰</button>
+        <div class="search">
+          <span>⌕</span>
+          <input id="globalSearch" placeholder="Buscar empresa, CNPJ ou levantamento">
+        </div>
+        <div class="top-actions">
+          <span class="connection" id="connectionBadge"><i></i><b>Online</b></span>
+          <button class="ghost" id="installButton" hidden>↓ Instalar app</button>
+        </div>
+      </header>
+
+      <section class="page active" id="page-inicio">
+        <div class="heading">
+          <div>
+            <span class="eyebrow">VISÃO OPERACIONAL</span>
+            <h1>Bom dia, equipe</h1>
+            <p>Acompanhe levantamentos e continue de onde parou.</p>
+          </div>
+          <button class="primary" data-action="new-inspection">＋ Novo levantamento</button>
+        </div>
+
+        <div class="stats">
+          <article><span>Em andamento</span><strong id="statOpen">0</strong><small>coletas abertas</small></article>
+          <article><span>Aguardando revisão</span><strong id="statReview">0</strong><small>prontas para gestão</small></article>
+          <article><span>Concluídos</span><strong id="statDone">0</strong><small>registros da demonstração</small></article>
+          <article><span>Empresas</span><strong id="statCompanies">0</strong><small>cadastros locais</small></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel span-2">
+            <div class="panel-head">
+              <div><h2>Levantamentos recentes</h2><p>Dados persistidos localmente neste navegador</p></div>
+              <button class="link" data-go="levantamentos">Ver todos →</button>
+            </div>
+            <div id="recentList" class="recent-list"></div>
+          </article>
+
+          <aside class="panel">
+            <div class="panel-head"><div><h2>Próximas visitas</h2><p>Agenda demonstrativa</p></div></div>
+            <div class="visit"><b>14:30</b><span>Empresa Delta Manufatura<small>Novo Hamburgo · Técnico Demo</small></span></div>
+            <div class="visit"><b>16:00</b><span>Empresa Épsilon Saúde<small>São Leopoldo · Técnica Demo</small></span></div>
+            <div class="visit"><b>09:00</b><span>Construtora Norte<small>Porto Alegre · Técnico Demo</small></span></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="page" id="page-levantamentos">
+        <div class="heading compact">
+          <div><span class="eyebrow">OPERAÇÃO</span><h1>Levantamentos</h1><p>Pesquise, filtre e continue coletas de campo.</p></div>
+          <button class="primary" data-action="new-inspection">＋ Novo levantamento</button>
+        </div>
+        <div class="filters panel">
+          <input id="inspectionSearch" placeholder="Buscar empresa, cidade, CNPJ ou ID">
+          <select id="statusFilter">
+            <option value="all">Todos os status</option>
+            <option value="andamento">Em andamento</option>
+            <option value="revisao">Em revisão</option>
+            <option value="concluido">Concluído</option>
+          </select>
+        </div>
+        <div class="panel table-wrap">
+          <div class="table-summary"><span><strong id="resultCount">0</strong> resultados</span><button class="ghost" id="exportButton">↓ Exportar JSON</button></div>
+          <table>
+            <thead><tr><th>Levantamento</th><th>CNPJ</th><th>Status</th><th>Progresso</th><th>Conformidade</th><th>Atualização</th></tr></thead>
+            <tbody id="inspectionTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="page" id="page-modelos">
+        <div class="heading compact">
+          <div><span class="eyebrow">ADMINISTRAÇÃO</span><h1>Modelos de checklist</h1><p>Crie, importe e duplique modelos de coleta.</p></div>
+          <div class="actions">
+            <label class="ghost file-label">↑ Importar JSON<input id="modelImport" type="file" accept=".json" hidden></label>
+            <button class="primary" id="newModelButton">＋ Novo modelo</button>
+          </div>
+        </div>
+        <div class="notice">Modelos alterados não modificam levantamentos já iniciados nesta demonstração.</div>
+        <div id="templateGrid" class="cards"></div>
+      </section>
+
+      <section class="page" id="page-empresas">
+        <div class="heading compact">
+          <div><span class="eyebrow">CADASTROS</span><h1>Empresas</h1><p>Cadastros sintéticos usados na demonstração.</p></div>
+          <button class="primary" id="newCompanyButton">＋ Nova empresa</button>
+        </div>
+        <div id="companyGrid" class="cards"></div>
+      </section>
+
+      <section class="page" id="page-agenda">
+        <div class="heading compact">
+          <div><span class="eyebrow">PLANEJAMENTO</span><h1>Agenda técnica</h1><p>Tela de validação do fluxo de planejamento.</p></div>
+        </div>
+        <div class="panel empty">
+          <div class="empty-icon">◷</div>
+          <h2>Calendário operacional</h2>
+          <p>A conexão com uma agenda compartilhada não faz parte deste pacote v0.1.</p>
+        </div>
+      </section>
+
+      <section class="page" id="page-usuarios">
+        <div class="heading compact">
+          <div><span class="eyebrow">ADMINISTRAÇÃO</span><h1>Usuários e acessos</h1><p>Perfis demonstrativos de Técnico, Gestão e Administrador.</p></div>
+          <button class="primary" id="newUserButton">＋ Novo usuário</button>
+        </div>
+        <div class="panel table-wrap">
+          <table>
+            <thead><tr><th>Usuário</th><th>Perfil</th><th>Levantamentos</th><th>Status</th><th>Último acesso</th></tr></thead>
+            <tbody id="userTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="page checklist-page" id="page-checklist">
+        <div class="check-top">
+          <button class="ghost" id="exitChecklist">← Sair</button>
+          <div><strong id="checklistCompany">Novo levantamento</strong><span id="checklistTemplate">TERCEIROS</span></div>
+          <span class="save-state">✓ salvo localmente</span>
+        </div>
+        <div class="progress-line"><i id="checklistProgressBar"></i></div>
+        <div class="check-layout">
+          <aside id="sectionNav" class="section-nav"></aside>
+          <div class="questions">
+            <div class="question-head">
+              <div><span class="eyebrow" id="sectionKicker">SEÇÃO 1</span><h1 id="sectionTitle">Identificação</h1><p id="sectionDescription"></p></div>
+              <div class="progress-ring"><strong id="sectionProgress">0%</strong><span>preenchido</span></div>
+            </div>
+            <div id="questionList"></div>
+            <div class="check-actions">
+              <button class="ghost" id="previousSection">← Anterior</button>
+              <button class="primary" id="nextSection">Próxima seção →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="newInspectionDialog">
+    <form id="newInspectionForm">
+      <div class="modal-head"><div><span class="eyebrow">NOVO LEVANTAMENTO</span><h2>Preparar coleta em campo</h2></div><button type="button" class="icon close-modal">×</button></div>
+      <div class="form-grid">
+        <label class="full">Empresa<select id="companySelect" required></select></label>
+        <label>Modelo<select id="templateSelect" required></select></label>
+        <label>Responsável<select id="responsibleSelect"><option>Técnico Demo</option><option>Técnica Demo</option><option>Administrador Demo</option></select></label>
+        <label>Data prevista<input type="date" id="scheduledDate" required></label>
+        <label>Horário<input type="time" value="09:00" required></label>
+        <label class="full">Observação inicial<textarea rows="3" placeholder="Orientações para a visita"></textarea></label>
+      </div>
+      <div class="modal-actions"><button type="button" class="ghost close-modal">Cancelar</button><button class="primary" type="submit">Criar e iniciar</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="simpleDialog">
+    <form id="simpleForm">
+      <div class="modal-head"><div><span class="eyebrow" id="simpleKicker">CADASTRO</span><h2 id="simpleTitle">Novo registro</h2></div><button type="button" class="icon close-simple">×</button></div>
+      <div id="simpleFields" class="form-grid"></div>
+      <div class="modal-actions"><button type="button" class="ghost close-simple">Cancelar</button><button class="primary" type="submit">Salvar</button></div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
