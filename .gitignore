@@ -1,0 +1,19 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local tooling
+*.log
+*.tmp
+
+# Future environment/secrets
+.env
+.env.*
+!*.env.example
+
+# Future generated/runtime data
+data/
+uploads/
+exports/
